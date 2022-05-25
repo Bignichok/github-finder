@@ -2,8 +2,9 @@ import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import Spinner from "../../components/Spinner/Spinner";
+import usePrevious from "../../hooks/usePrevious";
 
-import { fetchRepositories } from "./repositoriesSlice";
+import { fetchRepositories, setCurrentPage } from "./repositoriesSlice";
 import RepositoriesListItem from "./RepositoriesListItem";
 import RepositoriesListWrapper from "./RepositoriesList.style";
 
@@ -13,17 +14,24 @@ const RepositoriesList = ({ inputValue }) => {
     const currentPage = useSelector((state) => state.repositories.currentPage);
     const dispatch = useDispatch();
 
+    const searchValue = inputValue || "react";
+    const prevSearchValue = usePrevious(searchValue);
+
     useEffect(() => {
-        dispatch(
-            fetchRepositories({
-                inputValue: inputValue || "react",
-                page: currentPage,
-            })
-        );
+        if (prevSearchValue !== searchValue && currentPage !== 1) {
+            dispatch(setCurrentPage(1));
+        } else {
+            dispatch(
+                fetchRepositories({
+                    searchValue,
+                    page: currentPage,
+                })
+            );
+        }
     }, [inputValue, currentPage]);
 
     useEffect(() => {
-        if (!isLoading && window.screenY > 0) {
+        if (!isLoading && window.pageYOffset > 0) {
             window.scrollTo({ top: 0 });
         }
     }, [isLoading]);

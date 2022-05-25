@@ -12,12 +12,12 @@ const initialState = {
 
 export const fetchRepositories = createAsyncThunk(
     "repositories/fetchRepositories",
-    async ({ inputValue, page }) => {
+    async ({ searchValue, page }) => {
         const response = await axios(
             "https://api.github.com/search/repositories",
             {
                 params: {
-                    q: inputValue,
+                    q: searchValue,
                     per_page: PER_PAGE,
                     page: page,
                 },
@@ -71,12 +71,6 @@ const repositoriesSlice = createSlice({
                 state.totalPages = Math.ceil(totalCount / PER_PAGE);
                 state.entities = entities;
                 state.isLoading = false;
-
-                const inputValue = action.meta.arg.inputValue;
-                if (inputValue !== state.requestedValue) {
-                    state.requestedValue = inputValue;
-                    state.currentPage = 1;
-                }
             });
     },
 });
